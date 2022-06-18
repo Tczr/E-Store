@@ -12,9 +12,10 @@ it's for antiques geeks.
 - Different payments type
 
 
- **It's new Concepts for me to desgin a system and build it from scratch**
+ **It's a new Concepts for me to desgin a system and build it from scratch**
 
  #### Database
 Schema:
+
 ![schema photo](https://github.com/Tczr/E-Store/blob/main/DB/Schema/schemaPhoto.png)
 
