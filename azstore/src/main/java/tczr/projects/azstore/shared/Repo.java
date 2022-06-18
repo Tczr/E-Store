@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface Repo <T> {
 
     List<T> getAll();
-    List<T> findAllById(Integer ID);
+//    List<T> findAllBy(Object object);
 
     Optional<T> findBy(Object obj);
 
@@ -14,12 +14,14 @@ public interface Repo <T> {
 
     boolean existsById(Integer primaryKey);
 
-    boolean save(T entity);
-    boolean saveInDifferentTables(T entity, Object...option);
-    boolean saveAll(List<T> entities);
+    boolean insert(T entity);
+    @Deprecated
+    boolean insertWith(T entity, Object...option);
+    boolean insertAll(List<T> entities);
 
     boolean update(T entity);
 
     boolean delete(T entity);
+
 
 }

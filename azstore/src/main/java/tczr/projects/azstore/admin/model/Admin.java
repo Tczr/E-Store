@@ -6,6 +6,7 @@ public class Admin extends Account {
 
     AdminType adminType;
 
+
     public Admin(){
         super();
     }

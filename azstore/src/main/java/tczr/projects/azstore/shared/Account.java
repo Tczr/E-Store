@@ -12,8 +12,8 @@ public abstract class Account {
     private String password;
     private String fullname;
     private Status status;
-    private LocalDate createdAt;
-    private LocalDate modifiedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
     private LocalDateTime lastLogin;
 
     public Account(){}
@@ -87,11 +87,11 @@ public abstract class Account {
         this.fullname = fullname;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -103,11 +103,11 @@ public abstract class Account {
         this.status = status;
     }
 
-    public LocalDate getModifiedAt() {
+    public LocalDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDate modifiedAt) {
+    public void setModifiedAt(LocalDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
@@ -125,7 +125,7 @@ public abstract class Account {
         return array[0];
     }
 
-    public String getSecondName(){
+    public String getLastName(){
         String[] array = fullname.split(" ");
 
         return array[1];

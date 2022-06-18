@@ -5,6 +5,7 @@ import org.apache.tomcat.jni.Address;
 import tczr.projects.azstore.shared.Account;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,22 +16,22 @@ public class Costumer extends Account {
 
     public Costumer(){
         super();
-        this.setCreatedAt(LocalDate.now());
+        this.setCreatedAt(LocalDateTime.now());
 
     }
     public Costumer(String email, String userName, String password) {
        super(email, userName, password);
-       this.setCreatedAt(LocalDate.now());
+       this.setCreatedAt(LocalDateTime.now());
     }
 
     public Costumer(String email, String userName, String phone, String password, String fullname) {
         super(email, userName, phone, password, fullname);
-        this.setCreatedAt(LocalDate.now());
+        this.setCreatedAt(LocalDateTime.now());
     }
 
     public Costumer(String email, String userName, String password, List<Address> userAddresses, List<CostumerPayment> userPayments) {
         super(email, userName, password);
-        this.setCreatedAt(LocalDate.now());
+        this.setCreatedAt(LocalDateTime.now());
         this.userAddresses=userAddresses;
         this.userPayments=userPayments;
     }

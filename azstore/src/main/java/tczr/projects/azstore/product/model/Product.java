@@ -1,9 +1,12 @@
 package tczr.projects.azstore.product.model;
 
 import tczr.projects.azstore.category.model.Category;
+import tczr.projects.azstore.discount.Discount;
 import tczr.projects.azstore.inventory.Inventory;
-import tczr.projects.azstore.costumer.model.Costumer;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -14,31 +17,34 @@ public class Product {
     private String product_name, product_details;
     private boolean product_availability, product_unlimited;
     private float product_stock, product_weight;
-    private List iamges;
+    private List  images;
+    private Discount discount;
+    private Category category;
+    private Inventory inventory;
+    private BigDecimal price;
+    private BigDecimal priceAfterDiscount;
     private LocalDateTime insertedAt,  modifiedAt;
 
-    Category category;
-    Costumer costumer;
-    Inventory inventory;
 
     public Product() {}
 
-    public Product(String product_name, String product_details, LocalDateTime insertedAt, Category category, Costumer costumer, Inventory inventory) {
+    public Product(String product_name, String product_details, LocalDateTime insertedAt, Discount discount, Category category) {
         this.product_name = product_name;
         this.product_details = product_details;
         this.insertedAt = insertedAt;
+        this.discount=discount;
         this.category = category;
-        this.costumer = costumer;
+    }
+
+    public Product(String product_name, String product_details, LocalDateTime insertedAt, Discount discount, Category category, Inventory inventory) {
+        this.product_name = product_name;
+        this.product_details = product_details;
+        this.insertedAt = insertedAt;
+        this.discount=discount;
+        this.category = category;
         this.inventory = inventory;
     }
 
-    public Product(String product_name, String product_details, LocalDateTime insertedAt, Category category, Costumer costumer) {
-        this.product_name = product_name;
-        this.product_details = product_details;
-        this.insertedAt = insertedAt;
-        this.category = category;
-        this.costumer = costumer;
-    }
     public Product(String product_name,
                    String product_details,
                    boolean product_availability,
@@ -46,8 +52,8 @@ public class Product {
                    float product_stock,
                    float product_weight,
                    LocalDateTime insertedAt,
+                   Discount discount,
                    Category category,
-                   Costumer costumer,
                    Inventory inventory) {
         this.product_name = product_name;
         this.product_details = product_details;
@@ -56,9 +62,8 @@ public class Product {
         this.product_stock = product_stock;
         this.product_weight = product_weight;
         this.insertedAt = insertedAt;
-        this.modifiedAt = modifiedAt;
+        this.discount=discount;
         this.category = category;
-        this.costumer = costumer;
         this.inventory = inventory;
     }
 
@@ -79,6 +84,47 @@ public class Product {
         this.product_name = product_name;
     }
 
+    public BigDecimal getPrice() {return price;}
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+
+        // set only if the PriceAfterDiscount hasn't been set from another method
+        if(!discountedPrice()) {setPriceAfterDiscount();}
+
+    }
+
+    private void setPriceAfterDiscount(){
+        if(hasDiscount() && hasPrice()){
+            float discount_percent =discount.getDiscount_percent();
+            if(discount_percent>1 && discount_percent<=100){
+                discount_percent/=100;}
+
+            BigDecimal amountToSub = price.multiply(new BigDecimal(discount_percent)).round(new MathContext(13));
+            System.out.println(amountToSub);
+            priceAfterDiscount=price.subtract(amountToSub).round(new MathContext(7, RoundingMode.CEILING));
+            System.out.println(priceAfterDiscount);
+            }
+    }
+
+    private boolean discountedPrice(){return priceAfterDiscount!=null;}
+
+    public Discount getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Discount discount) {
+        this.discount = discount;
+
+        // set only if the PriceAfterDiscount hasn't been set from another method
+        if(!discountedPrice()) {setPriceAfterDiscount();}
+    }
+
+    private boolean hasDiscount(){
+        return discount!=null;
+    }
+    private boolean hasPrice(){ return price!=null;}
+
     public String getProduct_details() {
         return product_details;
     }
@@ -87,7 +133,7 @@ public class Product {
         this.product_details = product_details;
     }
 
-    public boolean isProduct_availability() {
+    public boolean getProduct_availability() {
         return product_availability;
     }
 
@@ -95,7 +141,7 @@ public class Product {
         this.product_availability = product_availability;
     }
 
-    public boolean isProduct_unlimited() {
+    public boolean getProduct_unlimited() {
         return product_unlimited;
     }
 
@@ -142,23 +188,20 @@ public class Product {
     public void setCategory(Category category) {
         this.category = category;
     }
-
-    public Costumer getCostumer() {
-        return costumer;
-    }
-
-    public void setCostumer(Costumer costumer) {
-        this.costumer = costumer;
-    }
-
+    
     public Inventory getInventory() {
         return inventory;
     }
 
-    public void setInventory(Inventory inventory) {
+    public void setInventory() {
         this.inventory = inventory;
     }
 
+    public List getImages() {return  images;}
+
+    public void setImages(List  images) {
+        this. images =  images;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -175,15 +218,19 @@ public class Product {
                 && Objects.equals(insertedAt, product.insertedAt)
                 && Objects.equals(modifiedAt, product.modifiedAt)
                 && Objects.equals(category, product.category)
-                && Objects.equals(costumer, product.costumer)
                 && Objects.equals(inventory, product.inventory)
-                && Objects.equals(iamges, product.iamges);
+                && Objects.equals( images, product. images)
+                && Objects.equals(price, product.price)
+                && Objects.equals(priceAfterDiscount, product.priceAfterDiscount);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(product_id, product_name, product_details, product_availability, product_unlimited, product_stock, product_weight, insertedAt, modifiedAt, category, costumer, inventory, iamges);
+        return Objects.hash(product_id, product_name, product_details, product_availability,
+                product_unlimited, product_stock, product_weight, insertedAt, modifiedAt,
+                category, inventory,  images, price, priceAfterDiscount);
     }
+
 
     @Override
     public String toString() {
@@ -195,13 +242,16 @@ public class Product {
                 ", product_unlimited=" + product_unlimited +
                 ", product_stock=" + product_stock +
                 ", product_weight=" + product_weight +
+                ", images=" + images +
+                ", discount=" + discount +
+                ", category=" + category +
+                ", inventory=" + inventory +
+                ", price=" + price +
+                ", priceAfterDiscount=" + priceAfterDiscount +
                 ", insertedAt=" + insertedAt +
                 ", modifiedAt=" + modifiedAt +
-                ", category=" + category +
-                ", costumer=" + costumer +
-                ", inventory=" + inventory +
-                ", images="+ iamges +
                 '}';
     }
+
 }
 

@@ -1,5 +1,7 @@
 package tczr.projects.azstore.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -10,6 +12,7 @@ import tczr.projects.azstore.shared.Status;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class AdminRepository implements Repo<Admin>{
@@ -18,7 +21,10 @@ public class AdminRepository implements Repo<Admin>{
     private static final  String ID_REG="^\\d+";
     private final JdbcTemplate jdbcTemplate;
 
-    private final RowMapper rowMapper = (result, rowNumber) ->{
+    @Autowired
+    @Qualifier("adminTypeRepository")
+    private Repo adminType;
+    private RowMapper rowMapper = (result, rowNumber) ->{
         Admin account = new Admin(
                 result.getString("admin_email"),
                 result.getString("admin_accountName"),
@@ -26,23 +32,24 @@ public class AdminRepository implements Repo<Admin>{
 
         account.setId(result.getInt("admin_id"));
         account.setPhone(result.getString("admin_phoneNumber"));
-        account.setCreatedAt(result.getDate("createdAt").toLocalDate());
-        account.setModifiedAt(result.getDate("modifiedAt").toLocalDate());
-//        must test it
-//        account.setLastLogin();
+        account.setCreatedAt(result.getTimestamp("createdAt").toLocalDateTime());
+        account.setModifiedAt(result.getTimestamp("modifiedAt").toLocalDateTime());
+        account.setLastLogin(result.getTimestamp("last_login").toLocalDateTime());
         String fname=result.getString("admin_first_name");
         String lname = result.getString("admin_last_name");
         account.setFullname(fname+" "+lname);
         account.setStatus(Status.toStatus(result.getString("status")));
-        account.setAdminType(getTypeOfAdmin(result.getInt("admin_type_id")));
+        account.setAdminType((AdminType)
+                adminType.findById(result.getInt("admin_type_id")).get());
 
       //  admin_type is 1:n. so, we will create a  query for it
 
         return account;
     };
 
-    AdminRepository(JdbcTemplate jdbcTemplate){
+    AdminRepository(JdbcTemplate jdbcTemplate, Repo adminType){
         this.jdbcTemplate=jdbcTemplate;
+        this.adminType=adminType;
     }
 
 
@@ -53,11 +60,10 @@ public class AdminRepository implements Repo<Admin>{
                 rowMapper) ;
     }
 
-    @Deprecated
-    @Override
-    public List<Admin> findAllById(Integer ID) {
+  /*  @Override
+    public List<Admin> findAllBy(Object Id) {
         return List.of(findById(ID).get());
-    }
+    }*/
 
     @Override
     public Optional<Admin> findBy(Object obj) {
@@ -66,7 +72,8 @@ public class AdminRepository implements Repo<Admin>{
 
     @Override
     public Optional<Admin> findById(Integer ID) {
-        Admin admin=(Admin) jdbcTemplate.queryForObject("SELECT * FROM admins WHERE user_id=?",
+        Admin admin=(Admin) jdbcTemplate.queryForObject(
+                "SELECT * FROM admin WHERE admin_id=?",
                 rowMapper,
                 ID);
 
@@ -78,25 +85,44 @@ public class AdminRepository implements Repo<Admin>{
     @Override
     public boolean existsById(Integer Id) {
         return jdbcTemplate.queryForObject(
-                "SELECT * FROM admins WHERE user_id=?",
+                "SELECT * FROM admin WHERE admin_id=?",
                 rowMapper,
                 Id
         ) != null;
     }
 
     @Override
-    public boolean save(Admin entity) {
-        return false;
+    public boolean insert(Admin entity) {
+
+        return jdbcTemplate.update(
+                "INSERT INTO admin(" +
+                        "admin_id, admin_password, admin_accountName, admin_email" +
+                        " admin_poneNumber, admin_first_name, admin_last_name," +
+                        "admin_type_id," +
+                        "status, last_login, createdAt",
+                entity.getId(), entity.getPassword(), entity.getUserName() ,  entity.getEmail(),
+                entity.getPhone(), entity.getFirstName(), entity.getLastName(),
+                entity.getAdminType().getId(),
+                entity.getStatus().toString(), entity.getLastLogin(), entity.getCreatedAt()
+        )==1;
     }
 
     @Override
-    public boolean saveAll(List<Admin> entities) {
-        return false;
+    public boolean insertAll(List<Admin> entities) {
+        AtomicInteger size = new AtomicInteger(entities.size());
+        entities.forEach(
+                entity ->{
+                    insert(entity);
+                    size.getAndDecrement();
+                }
+        );
+
+        return size.equals(0);
     }
 
 
     @Override
-    public boolean saveInDifferentTables(Admin entity,Object...option) {
+    public boolean insertWith(Admin entity, Object...option) {
         return jdbcTemplate.update(
                 "INSERT INTO admin" +
                     "(admin_accountName, " +
@@ -117,7 +143,7 @@ public class AdminRepository implements Repo<Admin>{
                 entity.getStatus().toString(),
                 option,
                 entity.getFirstName(),
-                entity.getSecondName(),
+                entity.getLastName(),
                 entity.getPhone(),
                 entity.getLastLogin(),
                 entity.getCreatedAt()
@@ -127,7 +153,7 @@ public class AdminRepository implements Repo<Admin>{
     @Override
     public boolean update(Admin entity) {
         return jdbcTemplate.update(
-                "UPDATE users SET user_email=?, user_name=?, user_password=? WHERE user_id=?",
+                "UPDATE admin SET admin_email=?, admin_accountName=?, admin_password=? WHERE admin_id=?",
                 entity.getEmail(), entity.getUserName(),entity.getPassword(),
 
                 entity.getId()
@@ -138,7 +164,7 @@ public class AdminRepository implements Repo<Admin>{
     @Override
     public boolean delete(Admin entity) {
         return jdbcTemplate.update(
-                "DELETE FROM users WHERE user_id=?",
+                "DELETE FROM admin WHERE admin_id=?",
                 entity.getId()
         )==1;
     }
@@ -162,7 +188,7 @@ public class AdminRepository implements Repo<Admin>{
     }
 
 
-    private AdminType getTypeOfAdmin(int typeId){
+   /* private AdminType getTypeOfAdmin(int typeId){
        return  jdbcTemplate.queryForObject(
                 "SELECT * FROM admin_type WHERE admin_type_id=?",
                 (res, rowNumber)->{
@@ -171,7 +197,7 @@ public class AdminRepository implements Repo<Admin>{
                 },
                 typeId
         );
-    }
+    }*/
     /***
      helper function:
      -SelectQueryOF : dteremins wat query should search for

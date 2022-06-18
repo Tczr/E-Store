@@ -1,5 +1,6 @@
 package tczr.projects.azstore.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tczr.projects.azstore.admin.model.Admin;
 import tczr.projects.azstore.shared.Repo;
 
@@ -10,11 +11,11 @@ public class AdminService {
     private static final String USER_EMAIL_REG = "^([^\\d]\\w+).*(\\@\\w+)(\\.\\w+)";
     private static final  String ID_REG="^\\d+";
     private static int lastIndex = 0;
-    private  static int lastId;
-    Admin[] inserted_admin =  new Admin[20];
+    private static int lastId;
+    private static Admin[] inserted_admin =  new Admin[20];
+    private static Map<Integer, Admin> admins =new HashMap<>();
 
-    Map<Integer, Admin> admins =new HashMap<>();
-
+    @Autowired
     private final Repo adminRepository;
 
     public AdminService(Repo adminRepository) {
@@ -36,12 +37,7 @@ public class AdminService {
         return admins.values().stream().toList();
     }
 
-    public Optional<Admin> getById(Integer id){
-        if(admins.containsKey(id))
-            return  Optional.ofNullable(admins.get(id));
-
-        return Optional.empty();
-    }
+    public Optional<Admin> getById(Integer id){return  Optional.ofNullable(admins.get(id));}
     public Optional getBy(Object obj){
        return selectQueryOf((String) obj);
     }
@@ -79,7 +75,7 @@ public class AdminService {
 
     private void insertAll(){
 
-        adminRepository.saveAll(Arrays.stream(inserted_admin).toList());
+        adminRepository.insertAll(Arrays.stream(inserted_admin).toList());
 
         //flush :)
         inserted_admin=null;

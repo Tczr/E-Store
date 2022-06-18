@@ -26,7 +26,7 @@ public class CostumerRepository implements Repo<Costumer> {
         account.setPhone(result.getString("user_phone"));
 //        account.setType(result.getString("user_type"));
         account.setCreatedAt(
-                                result.getDate("createdAt").toLocalDate()
+                                result.getTimestamp("createdAt").toLocalDateTime()
         );
 
 
@@ -38,18 +38,21 @@ public class CostumerRepository implements Repo<Costumer> {
     }
 
 
-    @Override
     public List<Costumer> findAll() {
 
         return jdbcTemplate.query(" SELECT * FROM users",
                 rowMapper) ;
     }
 
-    @Deprecated
     @Override
-    public List<Costumer> findAllById(Integer ID) {
-        return List.of(findById(ID).get());
+    public List<Costumer> getAll() {
+        return null;
     }
+
+   /* @Override
+    public List<Costumer> findAllBy(Object ID) {
+        return List.of(findById(Integer.parseInt(ID.toString())).get());
+    }*/
 
     @Override
     public Optional<Costumer> findBy(Object obj) {
@@ -77,12 +80,22 @@ public class CostumerRepository implements Repo<Costumer> {
     }
 
     @Override
-    public boolean save(Costumer entity) {
+    public boolean insert(Costumer entity) {
         return jdbcTemplate.update(
                 "INSERT INTO users(user_email,user_password,user_name,createdAt) " +
                         "VALUES (?, ?, ?, ?)",
                 entity.getEmail(), entity.getPassword(), entity.getUserName(), entity.getCreatedAt()
         ) == 1;
+    }
+
+    @Override
+    public boolean insertWith(Costumer entity, Object... option) {
+        return false;
+    }
+
+    @Override
+    public boolean insertAll(List<Costumer> entities) {
+        return false;
     }
 
     @Override

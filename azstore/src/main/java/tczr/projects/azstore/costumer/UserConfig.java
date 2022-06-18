@@ -14,7 +14,7 @@ public class UserConfig {
             CostumerRepository userRepository, AdminRepository adminRepository){
         return args -> {
 
-            userRepository.save(
+            userRepository.insert(
                     new Costumer(
                             "user@emailato.com",
                             "Fifora",
