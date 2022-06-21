@@ -2,16 +2,16 @@ package tczr.projects.azstore.admin;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import tczr.projects.azstore.admin.model.AdminType;
 import tczr.projects.azstore.shared.Repo;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Repository
 public class AdminTypeRepository implements Repo<AdminType> {
 
     private final RowMapper rowMapper = (res, numberRow )->{
@@ -20,6 +20,7 @@ public class AdminTypeRepository implements Repo<AdminType> {
                 res.getString("admin_type"),
                 res.getString("admin_permission")
         );
+        adminType.setId(res.getInt("admin_type_id"));
         return adminType;
     };
 

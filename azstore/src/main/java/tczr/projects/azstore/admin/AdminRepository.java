@@ -1,15 +1,15 @@
 package tczr.projects.azstore.admin;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import tczr.projects.azstore.admin.model.Admin;
 import tczr.projects.azstore.admin.model.AdminType;
+import tczr.projects.azstore.shared.Helper;
 import tczr.projects.azstore.shared.Repo;
 import tczr.projects.azstore.shared.Status;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,10 +21,8 @@ public class AdminRepository implements Repo<Admin>{
     private static final  String ID_REG="^\\d+";
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    @Qualifier("adminTypeRepository")
-    private Repo adminType;
-    private RowMapper rowMapper = (result, rowNumber) ->{
+
+    private final RowMapper rowMapper = (result, rowNumber) ->{
         Admin account = new Admin(
                 result.getString("admin_email"),
                 result.getString("admin_accountName"),
@@ -32,31 +30,41 @@ public class AdminRepository implements Repo<Admin>{
 
         account.setId(result.getInt("admin_id"));
         account.setPhone(result.getString("admin_phoneNumber"));
-        account.setCreatedAt(result.getTimestamp("createdAt").toLocalDateTime());
-        account.setModifiedAt(result.getTimestamp("modifiedAt").toLocalDateTime());
-        account.setLastLogin(result.getTimestamp("last_login").toLocalDateTime());
+        account.setCreatedAt(Helper.toLocalDateTime(result.getTimestamp("admin_createdAt")));
+        account.setModifiedAt(Helper.toLocalDateTime(result.getTimestamp("admin_modifiedAt")));
+        account.setLastLogin(Helper.toLocalDateTime(result.getTimestamp("last_login")));
         String fname=result.getString("admin_first_name");
         String lname = result.getString("admin_last_name");
         account.setFullname(fname+" "+lname);
         account.setStatus(Status.toStatus(result.getString("status")));
-        account.setAdminType((AdminType)
-                adminType.findById(result.getInt("admin_type_id")).get());
+        account.setAdminType(getAdminType(result));
 
       //  admin_type is 1:n. so, we will create a  query for it
 
         return account;
     };
 
-    AdminRepository(JdbcTemplate jdbcTemplate, Repo adminType){
+    AdminRepository(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate=jdbcTemplate;
-        this.adminType=adminType;
     }
 
+    public AdminType getAdminType(ResultSet res){
+        AdminType adminType = null ;
+        try{
+            adminType = new AdminType(
+                    res.getString("admin_type"),
+                    res.getString("admin_permission"));
+            adminType.setId(res.getInt("admin_type_id"));
+        }catch (Exception ex){ex.printStackTrace();}
+
+        return adminType;
+    }
 
     @Override
     public List<Admin> getAll() {
 
-        return jdbcTemplate.query(" SELECT * FROM admin",
+        return jdbcTemplate.query(
+                "SELECT * FROM admin JOIN  admin_type ON admin.admin_type_id = admin_type.admin_type_id",
                 rowMapper) ;
     }
 
@@ -73,7 +81,8 @@ public class AdminRepository implements Repo<Admin>{
     @Override
     public Optional<Admin> findById(Integer ID) {
         Admin admin=(Admin) jdbcTemplate.queryForObject(
-                "SELECT * FROM admin WHERE admin_id=?",
+                "SELECT * FROM admin JOIN admin_type ON admin.admin_type_id= admin_type.admin_type_id " +
+                        "WHERE admin_id=?",
                 rowMapper,
                 ID);
 
@@ -84,11 +93,7 @@ public class AdminRepository implements Repo<Admin>{
     // to be implemented
     @Override
     public boolean existsById(Integer Id) {
-        return jdbcTemplate.queryForObject(
-                "SELECT * FROM admin WHERE admin_id=?",
-                rowMapper,
-                Id
-        ) != null;
+        return !findById(Id).isEmpty();
     }
 
     @Override
@@ -96,11 +101,12 @@ public class AdminRepository implements Repo<Admin>{
 
         return jdbcTemplate.update(
                 "INSERT INTO admin(" +
-                        "admin_id, admin_password, admin_accountName, admin_email" +
-                        " admin_poneNumber, admin_first_name, admin_last_name," +
-                        "admin_type_id," +
-                        "status, last_login, createdAt",
-                entity.getId(), entity.getPassword(), entity.getUserName() ,  entity.getEmail(),
+                        " admin_password, admin_accountName, admin_email," +
+                        " admin_phoneNumber, admin_first_name, admin_last_name," +
+                        " admin_type_id," +
+                        " status, last_login, admin_createdAt) " +
+                        "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                entity.getPassword(), entity.getUserName() ,  entity.getEmail(),
                 entity.getPhone(), entity.getFirstName(), entity.getLastName(),
                 entity.getAdminType().getId(),
                 entity.getStatus().toString(), entity.getLastLogin(), entity.getCreatedAt()
@@ -114,9 +120,7 @@ public class AdminRepository implements Repo<Admin>{
                 entity ->{
                     insert(entity);
                     size.getAndDecrement();
-                }
-        );
-
+                });
         return size.equals(0);
     }
 
@@ -171,7 +175,8 @@ public class AdminRepository implements Repo<Admin>{
 
     private Optional<Admin> findByEmail(String email){
         Admin user = (Admin) jdbcTemplate.queryForObject(
-                "SELECT * FROM admins WHERE user_email=?",
+                "SELECT * FROM admin JOIN admin_type ON admin.admin_type_id = admin_type.admin_type_id" +
+                        " WHERE admin_email=?",
                 rowMapper,
                 email
         );
@@ -180,7 +185,8 @@ public class AdminRepository implements Repo<Admin>{
 
     private Optional<Admin> findByUserName(String userName){
         Admin admin =(Admin) jdbcTemplate.queryForObject(
-                "SELECT * FROM admins WHERE user_name=?",
+                "SELECT * FROM admin JOIN admin_type ON admin.admin_type_id = admin_type.admin_type_id " +
+                        " WHERE user_name=?",
                 rowMapper,
                 userName
         );

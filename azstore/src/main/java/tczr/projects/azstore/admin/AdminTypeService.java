@@ -27,12 +27,14 @@ public class AdminTypeService {
     }
     private void setList(List<AdminType> adminTypes){
         //
+        if(adminTypes.size()>0){
         adminTypes.forEach(
                 adminType -> {
                     typeMap.put(adminType.getId(),adminType);
                 });
         //to get last id, there are simply way is to set it from the loop above until the loop is finished
         lastId = adminTypes.get(adminTypes.size()-1).getId();
+        }
     }
 
     public List<AdminType> getAll(){return typeMap.values().stream().toList();}

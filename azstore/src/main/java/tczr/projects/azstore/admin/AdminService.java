@@ -1,18 +1,22 @@
 package tczr.projects.azstore.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import tczr.projects.azstore.admin.model.Admin;
 import tczr.projects.azstore.shared.Repo;
+import tczr.projects.azstore.shared.security.Encryption;
 
 import java.util.*;
 
+@Service
 public class AdminService {
 
     private static final String USER_EMAIL_REG = "^([^\\d]\\w+).*(\\@\\w+)(\\.\\w+)";
     private static final  String ID_REG="^\\d+";
-    private static int lastIndex = 0;
+    private static int lastIndex = -1;
     private static int lastId;
-    private static Admin[] inserted_admin =  new Admin[20];
+    private static Admin[] inserted_admin =  new Admin[15];
     private static Map<Integer, Admin> admins =new HashMap<>();
 
     @Autowired
@@ -43,30 +47,37 @@ public class AdminService {
     }
 
     public Optional<Admin> getByEmail(String email){
-       return Optional.ofNullable(searchFor(email, "email"));
+//       return Optional.ofNullable(searchFor(email, "email"));
+        return adminRepository.findBy(email);
     }
 
     public Optional<Admin> getByUserName(String userName){
-        return Optional.ofNullable(searchFor(userName, "userName"));
+        return Optional.ofNullable(searchFor(userName, "username"));
     }
 
     // Inserted Section
     public boolean insert(Admin newAdmin)
     {
-       if(isListFull()){
-           insertAll();
-       }
-       else if(!isFlushed()){
-           lastId++;
-           newAdmin.setId(lastId);
-           admins.put(lastId, newAdmin);
-            inserted_admin[lastIndex]=newAdmin;
+        if(isFlushed()) {
+
+            inserted_admin = new Admin[20];
+
+        }else if(isListFull()){
+            insertAll();
+        }else{
+            String encryptedPass = Encryption.encryptPassword(newAdmin.getPassword());
+            newAdmin.setPassword(encryptedPass);
+
+
             lastIndex++;
+            lastId++;
+            newAdmin.setId(lastId);
+
+            admins.put(lastId, newAdmin);
+            inserted_admin[lastIndex]=newAdmin;
+
             return true;
         }
-       else {
-           inserted_admin = new Admin[20];
-       }
 
         return  insert(newAdmin);
 
@@ -74,7 +85,7 @@ public class AdminService {
 
 
     private void insertAll(){
-
+        for (int i=0; i<inserted_admin.length; i++) {System.out.println(inserted_admin[i]);}
         adminRepository.insertAll(Arrays.stream(inserted_admin).toList());
 
         //flush :)
@@ -104,11 +115,14 @@ public class AdminService {
      */
     private Admin searchFor(String string, String...type ){
         //.NoSuchElementException
-        if (type.equals("userName"))
-        {return admins.values().stream()
-                .filter( (result) -> result.getUserName().equals(string) )
+        if (type[0].equalsIgnoreCase("username"))
+        {
+            return admins.values().stream()
+                .filter( (result) -> result.getUserName().equalsIgnoreCase(string) )
                 .findAny()
-                .get();}
+                .get();
+
+        }
 
 
         //default
@@ -130,8 +144,8 @@ public class AdminService {
 
 
     private boolean isListFull(){
-
-        return  lastIndex<inserted_admin.length;
+        if(isFlushed()) return false;
+        return  lastIndex+1>=inserted_admin.length;
     }
 
     private boolean isFlushed(){

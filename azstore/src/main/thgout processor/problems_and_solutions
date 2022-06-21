@@ -1,0 +1,33 @@
+Problem 1:
+    when Updating any object has dependencies and send to its api to update and save the changes;
+    the dependencies changed only in that object
+    but never change or updated in their tables.
+    So, what it could solve this problem
+
+   Solution 1:
+        make a facade object or mock object to mock The object, and it will split the dependencies.
+        It will have the same object in that object and whenever that object get updating, the dependencies in
+        the mock will get updating as well, and it will save the changes whenever change occur
+
+
+  Solution 2:
+        simply to make a call to every service's dependencies whenever change occur
+
+Problem 2:
+    When getting one object from database or repository it will get objects from database in the same time of getting an object,
+    Which is bad for performance to make two calls each, it will be slower than if we could do this process
+    separately.
+
+    Solution 1:
+            to make all dependencies when getting object refer to null;
+           and then in the mock or the build or factor or whatever.
+           in that mock object, the dependencies will get from its actual table. then can return final object.
+
+   But Notice we ran into a problem ##)
+   The problem is : whenever getting an object, it will get missing the needing details to get their dependencies
+
+
+   Simple solution forget all about system design and burn yourself :( or just simple use join with the query
+
+    the first solution would be for insertion to solve problem #1
+

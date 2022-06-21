@@ -7,9 +7,9 @@ import tczr.projects.azstore.admin.AdminRepository;
 import tczr.projects.azstore.shared.security.Encryption;
 import tczr.projects.azstore.costumer.model.Costumer;
 
-@Configuration
+
 public class UserConfig {
-    @Bean
+
     CommandLineRunner command (
             CostumerRepository userRepository, AdminRepository adminRepository){
         return args -> {

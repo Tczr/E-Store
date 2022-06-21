@@ -2,7 +2,6 @@ package tczr.projects.azstore.product;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import tczr.projects.azstore.costumer.model.Costumer;
 import tczr.projects.azstore.product.model.Product;
 import tczr.projects.azstore.shared.Repo;
 
