@@ -12,11 +12,7 @@ it's for antiques geeks.
 - Different payments type
 
 
-<<<<<<< HEAD
  **It's a new Concepts for me to desgin a system and build it from scratch**
-=======
- **It's  a new Concepts for me to desgin a system and build it from scratch**
->>>>>>> origin/main
 
  #### Database
 Schema:
