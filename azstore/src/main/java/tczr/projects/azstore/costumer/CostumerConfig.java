@@ -1,10 +1,8 @@
 package tczr.projects.azstore.costumer;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import tczr.projects.azstore.admin.AdminRepository;
-import tczr.projects.azstore.shared.security.Encryption;
+import tczr.projects.azstore.security.Encryption;
 import tczr.projects.azstore.costumer.model.Costumer;
 
 

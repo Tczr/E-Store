@@ -1,4 +1,8 @@
-package tczr.projects.azstore.shared.security;
+package tczr.projects.azstore.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -6,11 +10,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class Encryption {
     public static String encryptPassword(String pass){
-        byte[] bt = encrypte(pass.getBytes(StandardCharsets.UTF_8), "SHA3-256");
+        byte[] bt = encrypt(pass.getBytes(StandardCharsets.UTF_8), "SHA3-256");
         return byteToHex(bt);
     }
 
-    private static byte[]  encrypte(byte[] in, String algo) {
+    private static byte[]  encrypt(byte[] in, String algo) {
 
 
         MessageDigest md ;
@@ -32,4 +36,6 @@ public class Encryption {
         }
         return msg.toString();
     }
+
+
 }
