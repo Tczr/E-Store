@@ -12,7 +12,7 @@ it's for antiques geeks.
  #### System desgin
 Conseptual class diagram:
 
-![Conseptual class diagram](file:///D:/AzStore/uml%20diagram/class%20diagram-conceptual.svg)
+![Conseptual class diagram](https://github.com/Tczr/E-Store/blob/main/uml%20diagram/class%20diagram-conceptual.svg)
 
 Users use case diagram:
 
