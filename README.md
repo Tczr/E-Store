@@ -12,8 +12,10 @@ it's an online store.
 Conceptual class diagram:
 ![class diagram-conceptual](https://user-images.githubusercontent.com/74147044/180069122-7695530c-241d-4b06-8b4f-331e6decffa8.svg)
 
+Use case diagram for consumer system:
+![use case diagram-consumer](https://user-images.githubusercontent.com/74147044/180072877-a79a914e-e028-4af7-8106-249061cb3b04.svg)
 
-Use case diagram for users:
+Use case diagram for admin system:
 
 ![use case diagram](https://user-images.githubusercontent.com/74147044/180069149-323e7650-fc30-4b9a-83d6-caa2f41b7490.svg)
 
