@@ -11,15 +11,15 @@ it's for antiques geeks.
 
  #### System desgin
 Conseptual class diagram:
+![class diagram-conceptual](https://user-images.githubusercontent.com/74147044/180069122-7695530c-241d-4b06-8b4f-331e6decffa8.svg)
 
-![Conseptual class diagram](https://github.com/Tczr/E-Store/blob/main/uml%20diagram/class%20diagram-conceptual.svg)
 
 Users use case diagram:
 
-![user use case photo](https://github.com/Tczr/E-Store/blob/main/uml%20diagram/use%20case%20diagram.svg)
+![use case diagram](https://user-images.githubusercontent.com/74147044/180069149-323e7650-fc30-4b9a-83d6-caa2f41b7490.svg)
 
 
  #### Database
 Schema:
 
-![schema photo](https://github.com/Tczr/E-Store/blob/main/DB/Schema/schemaPhoto.png)
+![schemaPhoto](https://user-images.githubusercontent.com/74147044/180069190-3377b7ad-51c6-4864-8fdb-7a29b02619c7.png)
